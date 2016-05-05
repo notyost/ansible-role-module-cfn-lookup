@@ -1,0 +1,8 @@
+- name: Look up stack outputs by stack name
+  cfn_lookup: 
+    stack_name: "{{ item }}" 
+  with_items: "{{ cfn_lookup_stack_name | default([]) }}"
+  register: outputs
+
+- name: Set outputs fact
+  set_fact: stack_outputs="{{ outputs }}"
