@@ -3,6 +3,7 @@
 import collections
 from ansible import utils, errors
 import json
+import yaml
 import sys
 from ansible.module_utils.basic import *
 
@@ -15,7 +16,9 @@ except ImportError:
 def main():
   module = AnsibleModule(
     argument_spec = dict(
-      stack_name = dict(required=True, type='str')
+      stack_name = dict(required=True, type='str'),
+      fact = dict(required=True, type='str'),
+      fact_type = dict(required=False, type='str')
     )
   )
 
@@ -37,10 +40,16 @@ def main():
   for output in stacks[0]['Outputs']:
     outputs_fixed[output['OutputKey']] = output['OutputValue']
 
-  module.exit_json(
-    Changed=False,
-    Failed=False,
-    Outputs=outputs_fixed
-  )
+  result = dict(changed=False, failed=False)
+  if module.params.get('fact') is not None:
+    if module.params.get('fact_type') == 'yaml':
+      result['ansible_facts'] = { module.params.get('fact'): yaml.safe_load(outputs_fixed) }
+    elif module.params.get('fact_type') == 'json':
+      result['ansible_facts'] = { module.params.get('fact'): json.load(outputs_fixed) }
+    else:
+      result['ansible_facts'] = { module.params.get('fact'): outputs_fixed }
+
+
+  module.exit_json(**result)
 
 main()
