@@ -18,7 +18,8 @@ def main():
     argument_spec = dict(
       stack_name = dict(required=True, type='str'),
       fact = dict(required=True, type='str'),
-      fact_type = dict(required=False, type='str')
+      fact_type = dict(required=False, type='str'),
+      region = dict(required=False, type='str')
     )
   )
 
