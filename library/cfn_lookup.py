@@ -18,14 +18,18 @@ def main():
     argument_spec = dict(
       stack_name = dict(required=True, type='str'),
       fact = dict(required=True, type='str'),
-      fact_type = dict(required=False, type='str')
+      fact_type = dict(required=False, type='str'),
+      region = dict(required=False, type='str')
     )
   )
 
   stack_name = module.params.get('stack_name')
   region = module.params.get('region')
 
-  cfn_client = boto3.client('cloudformation')
+  if region is not None:
+    cfn_client = boto3.client('cloudformation', region_name=region)
+  else:
+    cfn_client = boto3.client('cloudformation')
 
   outputs_fixed = {}
   stacks = cfn_client.describe_stacks(StackName=stack_name)['Stacks']
